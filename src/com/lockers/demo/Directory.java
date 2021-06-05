@@ -4,6 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Class to hold Directory Info
+ * name             -> Name of directory
+ * files            -> List of child files at that level
+ * childDirectories -> List of child directories at that level
+ */
 public class Directory {
 
     private String name;
@@ -20,6 +26,12 @@ public class Directory {
         this.childDirectories = new ArrayList<>();
     }
 
+    /**
+     * Method to add the file in the current directory
+     *
+     * @param file - file to be added
+     * @throws IllegalArgumentException
+     */
     public void addFileInDirectory(File file) throws IllegalArgumentException {
         if (file == null) {
             throw new IllegalArgumentException("File cannot be null");
@@ -32,6 +44,12 @@ public class Directory {
         files.add(file);
     }
 
+    /**
+     * Method to add a child directory
+     *
+     * @param name - name of directory to be added
+     * @throws IllegalArgumentException
+     */
     public void addChildDirectory(String name) throws IllegalArgumentException {
         if (name == null || name.length() == 0) {
             throw new IllegalArgumentException("DirectoryName cannot be null");
