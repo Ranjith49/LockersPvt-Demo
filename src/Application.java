@@ -8,7 +8,7 @@ public class Application {
     static Directory mainDirectory;
     static Directory curDirectory;
 
-    private static String[] optionsSelected = {
+    private static final String[] optionsSelected = {
             "1. Add File to the Main directory",
             "2. Add File to the Current directory ",
             "3. Add a Child Directory to the Current Directory",
@@ -28,7 +28,6 @@ public class Application {
         curDirectory = mainDirectory;
 
         addDummyData();
-        boolean canUserInput = true;
         do {
             System.out.print("\n Enter your choice \t");
             printUserOptions();
@@ -39,7 +38,6 @@ public class Application {
             }
 
             if (input == 12) {
-                canUserInput = false;
                 break;
             }
 
@@ -78,10 +76,14 @@ public class Application {
                     deleteDirectoryInDir(curDirectory, delDir);
                     break;
                 case 8:
-                    // TODO [Ranjith] add search..
+                    System.out.println("Enter the file name to be deleted in currentDir");
+                    String searchFile = scanner.next();
+                    searchFile(curDirectory, searchFile.toLowerCase(Locale.ROOT), false);
                     break;
                 case 9:
-                    // TODO [Ranjith] add search inside root ..
+                    System.out.println("Enter the file name to be deleted from root");
+                    String toSearchFile = scanner.next();
+                    searchFile(mainDirectory, toSearchFile.toLowerCase(Locale.ROOT), true);
                     break;
                 case 10:
                     ArrayList<File> files = new ArrayList<>(curDirectory.getFiles());
@@ -111,8 +113,7 @@ public class Application {
 
                     break;
             }
-
-        } while (canUserInput);
+        } while (true);
     }
 
     private static void printUserOptions() {
@@ -139,20 +140,94 @@ public class Application {
     }
 
     private static void deleteFileInDirectory(Directory directory, String fileName) {
-        // TODO [Ranjith] Delete file..
+        Iterator<File> files = directory.getFiles().listIterator();
+        boolean isFileRemoved = false;
+
+        while (files.hasNext()) {
+            File next = files.next();
+            if (next.getName().equals(fileName)) {
+                files.remove();
+                isFileRemoved = true;
+                break;
+            }
+        }
+
+        if (isFileRemoved)
+            System.out.println("File name : " + fileName + " is deleted");
+        else
+            System.out.println("File name : " + fileName + " is not found");
     }
 
     private static void deleteDirectoryInDir(Directory directory, String dirName) {
-        // TODO [Ranjith] Delete dir ..
+        Iterator<Directory> directories = directory.getChildDirectories().listIterator();
+        boolean isDirRemoved = false;
+
+        while (directories.hasNext()) {
+            Directory dir = directories.next();
+            if (dir.getName().equals(dirName)) {
+                directories.remove();
+                isDirRemoved = true;
+            }
+        }
+
+
+        if (isDirRemoved)
+            System.out.println("Directory name : " + dirName + " is deleted");
+        else
+            System.out.println("Directory name : " + dirName + " is not found");
     }
 
     private static void navigateToDirectory(String nameofDirectory) {
-        Directory toDir = new Directory(nameofDirectory);
-        // TODO [Ranjith] Navigate to directory
+        LinkedList<Directory> directories = new LinkedList<>();
+        directories.add(mainDirectory);
+
+        boolean isDirFound = false;
+        while (!directories.isEmpty()) {
+            Directory cur = directories.removeFirst();
+            if (cur.getName().equals(nameofDirectory)) {
+                isDirFound = true;
+                curDirectory = cur;
+                break;
+            }
+            directories.addAll(cur.getChildDirectories());
+        }
+
+        if (!isDirFound) {
+            System.out.println("Not able to find directory from root :-> " + nameofDirectory);
+        }
+    }
+
+    private static void searchFile(Directory directory, String fileName, boolean canNavigateDown) {
+        boolean isFileFound = false;
+        File toSearch = new File(fileName);
+
+        LinkedList<Directory> directories = new LinkedList<>();
+        directories.add(directory);
+        while (!directories.isEmpty()) {
+            Directory cur = directories.removeFirst();
+            List<File> curFiles = cur.getFiles();
+            if (curFiles.contains(toSearch)) {
+                isFileFound = true;
+                break;
+            }
+
+            if (canNavigateDown) {
+                directories.addAll(cur.getChildDirectories());
+            }
+        }
+
+        if (isFileFound) {
+            System.out.println("File with " + fileName + " + Found");
+        } else {
+            System.out.println("File with " + fileName + " + Not found");
+        }
     }
 
 
     private static void addDummyData() {
-        // TODO [Ranjith] Add dummy main directory..
+        mainDirectory.addChildDirectory("D1");
+        mainDirectory.addChildDirectory("D2");
+        mainDirectory.addFileInDirectory(new File("F1"));
+        mainDirectory.addFileInDirectory(new File("F2"));
     }
 }
